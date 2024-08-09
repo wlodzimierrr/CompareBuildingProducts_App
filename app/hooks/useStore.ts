@@ -47,7 +47,9 @@ const useAppStore = create<Store>((set, get) => ({
         enableNotifications: true,
     },
     similarProducts: [],
-    setSimilarProducts: (products) => set({ similarProducts: products }),
+    setSimilarProducts: (products: Product[]) => {
+        set({ similarProducts: products });
+      },
 
     // Actions
     setMenuOpen: (menuOpen: boolean) => set({ menuOpen }),

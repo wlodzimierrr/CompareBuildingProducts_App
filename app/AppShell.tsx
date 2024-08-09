@@ -13,7 +13,7 @@ const AppShell = () => {
           <Route path="/tabs" render={() => <Tabs />} />
           <Route
             path="/"
-            render={() => <Redirect to="/tabs/feed" />}
+            render={() => <Redirect to="/tabs/home" />}
             exact={true}
           />
         </IonRouterOutlet>

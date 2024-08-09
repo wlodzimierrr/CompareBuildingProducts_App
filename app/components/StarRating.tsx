@@ -75,7 +75,7 @@ const StarRating: React.FC<StarRatingProps> = ({ rating, ratingCount }) => {
         ))}
 
       {/* Rating Count */}
-      <p className="prose prose-sm text-gray-500 ml-2">{rating} <span className="mx-1">({ratingCount})</span></p>
+      <p className="prose prose-sm text-gray-500 mx-2">{rating} <span className="mx-1">({ratingCount})</span></p>
     </div>
   );
 };

@@ -8,10 +8,11 @@ import useAppStore from "../hooks/useStore";
 interface Result extends Hit<Product> {
   _highlightResult: {
     product_name: HitHighlightResult;
-    [key: string]: any; 
+    [key: string]: any;
   };
 }
 
+// Function to search products based on a query
 export const searchProducts = async (query: string) => {
   try {
     const { hits } = await index.search<Product>(query, { hitsPerPage: 10 });
@@ -24,25 +25,29 @@ export const searchProducts = async (query: string) => {
 
 export const fetchProductAndSimilar = async (objectID: string) => {
   if (!objectID) return;
-  let isMounted = true;
 
   const { setSimilarProducts } = useAppStore.getState();
 
   try {
+    // Fetch the main product
     const searchResponse = await searchClient.search([
       {
         indexName: 'main_index',
         query: '',
         params: {
-          filters: `objectID:${objectID}`
-        }
+          filters: `objectID:${objectID}`,
+        },
       },
     ]);
 
-    if (!isMounted) return;
-
     const fetchedProduct = (searchResponse.results[0] as SearchResponse<Product>).hits[0];
 
+    if (!fetchedProduct) {
+      console.error('Product not found');
+      return;
+    }
+
+    // Fetch similar products
     const search = instantsearch({
       indexName: 'main_index',
       searchClient,
@@ -55,15 +60,15 @@ export const fetchProductAndSimilar = async (objectID: string) => {
         container,
         objectIDs: [fetchedProduct.objectID],
         transformItems(items) {
-          if (!isMounted) return items;
-      
+          // Ensure the main product isn't duplicated in the similar products list
           const similarProducts = items as unknown as Result[];
           const filteredProducts = similarProducts.filter(p => p.objectID !== fetchedProduct.objectID);
 
-          const typedProduct = fetchedProduct as unknown as Result;
-          setSimilarProducts([typedProduct, ...filteredProducts]);
+          // Add the main product at the top of the list
+          const combinedProducts = [fetchedProduct as unknown as Result, ...filteredProducts];
 
-          return [typedProduct, ...filteredProducts];
+          setSimilarProducts(combinedProducts);
+          return combinedProducts;
         },
       }),
     ]);
@@ -76,7 +81,4 @@ export const fetchProductAndSimilar = async (objectID: string) => {
   } catch (error) {
     console.log('Error fetching item:', error);
   }
-  return () => {
-    isMounted = false;
-  };
 };

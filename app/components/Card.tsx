@@ -7,7 +7,7 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 
 const Card: FC<CardProps> = ({ children, ...props }) => (
   <div {...props} className={cn("max-w-xl", props.className)}>
-    <div className="flex bg-white rounded dark:bg-black">
+    <div className="flex rounded dark:bg-black">
       {children}
     </div>
   </div>
