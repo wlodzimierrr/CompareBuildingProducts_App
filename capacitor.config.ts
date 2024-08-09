@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.example.app',
-  appName: 'nextjs-typescript-tailwind-ionic-starter',
+  appName: 'CompareBuildingProducts',
   cordova: {},
   loggingBehavior: "debug",
   webDir: "out",
