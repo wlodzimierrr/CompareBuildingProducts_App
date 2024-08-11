@@ -29,18 +29,12 @@ const Feed = () => {
   const history = useHistory();
   const { homeItems } = useAppStore();
   const { searchQuery, setSearchQuery, fetchAndSetHomeItems } = useAppStore();
-  const [showTopToolbar, setShowTopToolbar] = useState(true);
 
   useEffect(() => {
     if (searchQuery) {
       fetchAndSetHomeItems();
     }
   }, [searchQuery, fetchAndSetHomeItems]);
-
-  const logScrolling = (e: CustomEvent) => {
-    const scrollTop = e.detail.scrollTop;
-    setShowTopToolbar(scrollTop < 90);
-  };
 
   const handleSearch = (event: CustomEvent) => {
     const query = event.detail.value!;
@@ -51,7 +45,6 @@ const Feed = () => {
   return (
     <IonPage>
       <IonHeader>
-        {showTopToolbar && (
           <IonToolbar>
             <h1 className="text-center text-amber-500">
               <div className="flex flex-col items-center justify-center font-bold">
@@ -60,7 +53,6 @@ const Feed = () => {
               </div>
             </h1>
           </IonToolbar>
-        )}
         <IonToolbar>
           <div className="flex mt-2">
             <IonButtons slot="start">
@@ -76,8 +68,6 @@ const Feed = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent 
-        scrollEvents={true}
-        onIonScroll={logScrolling}
         fullscreen
       >
         <SvgBackground />
