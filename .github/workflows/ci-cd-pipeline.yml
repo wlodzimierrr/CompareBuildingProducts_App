@@ -22,15 +22,12 @@ jobs:
           echo "NEXT_PUBLIC_AGOLIA_PASSWORD=${{ secrets.NEXT_PUBLIC_AGOLIA_PASSWORD }}" >> ./.env
 
       - name: Build Docker image for compare_app
-        run: |
-          TAG=${{ github.sha }}
-          docker build -t ghcr.io/wlodzimierrr/compare_app:latest -t ghcr.io/wlodzimierrr/compare_app:${TAG} ./
+        run: docker build -t ghcr.io/wlodzimierrr/compare_app:latest ./
         
       - name: Push Docker image to GitHub Container Registry
         run: |
           docker login ghcr.io -u ${{ github.actor }} --password-stdin <<< ${{ secrets.GHCR_TOKEN }}
           docker push ghcr.io/wlodzimierrr/compare_app:latest
-          docker push ghcr.io/wlodzimierrr/compare_app:${TAG}
           
       - name: Configure Google Cloud CLI
         uses: google-github-actions/setup-gcloud@v2
