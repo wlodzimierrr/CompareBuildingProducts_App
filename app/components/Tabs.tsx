@@ -8,7 +8,7 @@ import {
   IonLabel,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import { cog, flash, list,search  } from "ionicons/icons";
+import { cog, home, list,search  } from "ionicons/icons";
 
 import Home from "./Feed";
 import Lists from './Lists';
@@ -33,7 +33,7 @@ const Tabs = () => {
       </IonRouterOutlet>
       <IonTabBar slot="bottom">
         <IonTabButton tab="tab1" href="/tabs/home">
-          <IonIcon icon={flash} />
+          <IonIcon icon={home} />
           <IonLabel>Home</IonLabel>
         </IonTabButton>
         <IonTabButton tab="tab2" href="/tabs/search">

@@ -116,9 +116,11 @@ const Search = () => {
 
   const logScrolling = (e: CustomEvent) => {
     const scrollTop = e.detail.scrollTop;
-    setShowTopToolbar(scrollTop < 90); // Adjust the threshold as needed
+    setShowTopToolbar(scrollTop < 90); 
   };
-
+  const handleBlur = () => {
+    console.log('Searchbar blurred');
+  };
   return (
     <IonPage>
       <IonHeader>
@@ -133,6 +135,7 @@ const Search = () => {
               value={searchQuery}
               onIonChange={(e) => setSearchQuery(e.detail.value!)}
               onIonClear={() => setSearchQuery('')}
+              onIonBlur={handleBlur}
             />
           </div>
         </IonToolbar>

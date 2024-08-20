@@ -5,11 +5,8 @@ import { lookingSimilar } from 'instantsearch.js/es/widgets';
 import { searchClient } from '../lib/algoliaSearch';
 import useAppStore from "../hooks/useStore";
 
-interface Result extends Hit<Product> {
-  _highlightResult: {
-    product_name: HitHighlightResult;
-    [key: string]: any;
-  };
+interface SearchResult extends Product {
+  objectID: string;
 }
 
 // Function to search products based on a query
@@ -48,36 +45,26 @@ export const fetchProductAndSimilar = async (objectID: string) => {
     }
 
     // Fetch similar products
-    const search = instantsearch({
-      indexName: 'main_index',
-      searchClient,
-    });
-
-    const container = document.createElement('div');
-
-    search.addWidgets([
-      lookingSimilar({
-        container,
-        objectIDs: [fetchedProduct.objectID],
-        transformItems(items) {
-          // Ensure the main product isn't duplicated in the similar products list
-          const similarProducts = items as unknown as Result[];
-          const filteredProducts = similarProducts.filter(p => p.objectID !== fetchedProduct.objectID);
-
-          // Add the main product at the top of the list
-          const combinedProducts = [fetchedProduct as unknown as Result, ...filteredProducts];
-
-          setSimilarProducts(combinedProducts);
-          return combinedProducts;
+    const resultsResponse = await searchClient.search([
+      {
+        indexName: 'main_index',
+        query: fetchedProduct.product_name,
+        params: {
+          hitsPerPage: 20,
+          removeWordsIfNoResults: 'firstWords',
+          advancedSyntax: true,
+          optionalWords: fetchedProduct.product_name.split(' '),
+          typoTolerance: true,
+          ignorePlurals: true,
         },
-      }),
+      },
     ]);
 
-    search.start();
-
-    return () => {
-      search.dispose();
-    };
+    const topMatches = (resultsResponse.results[0] as SearchResponse<SearchResult>).hits;
+    
+          setSimilarProducts(topMatches);
+          return topMatches;
+   
   } catch (error) {
     console.log('Error fetching item:', error);
   }
