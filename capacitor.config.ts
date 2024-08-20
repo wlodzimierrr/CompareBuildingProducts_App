@@ -13,11 +13,16 @@ const config: CapacitorConfig = {
   },
   server: {
     androidScheme: 'https',
-    hostname: 'localhost:3000',
+    iosScheme: 'https',
+    hostname: 'localhost:5000',
   },
   android: {
      loggingBehavior: "debug",
      webContentsDebuggingEnabled: true,
+  },
+  ios: {
+    loggingBehavior: "debug",
+    webContentsDebuggingEnabled: true,
   }
 };
 

@@ -1,0 +1,65 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Create .env file
+        run: |
+          echo "NEXT_PUBLIC_AGOLIA=${{ secrets.NEXT_PUBLIC_AGOLIA }}" >> ./.env
+          echo "NEXT_PUBLIC_AGOLIA_PASSWORD=${{ secrets.NEXT_PUBLIC_AGOLIA_PASSWORD }}" >> ./.env
+
+      - name: Build Docker image for compare_app
+        run: |
+          TAG=${{ github.sha }}
+          docker build -t ghcr.io/wlodzimierrr/compare_app:latest -t ghcr.io/wlodzimierrr/compare_app:${TAG} ./
+        
+      - name: Push Docker image to GitHub Container Registry
+        run: |
+          docker login ghcr.io -u ${{ github.actor }} --password-stdin <<< ${{ secrets.GHCR_TOKEN }}
+          docker push ghcr.io/wlodzimierrr/compare_app:latest
+          docker push ghcr.io/wlodzimierrr/compare_app:${TAG}
+          
+      - name: Configure Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          version: '>= 416.0.0'
+          service_account_key: ${{ secrets.GCE_SA_KEY }}
+          project_id: ${{ secrets.GCE_PROJECT }}
+          export_default_credentials: true
+
+      - name: Authenticate Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCE_SA_KEY }}
+
+      - name: SSH into Google Cloud VM and update Docker image
+        run: |
+          gcloud compute ssh ${GCE_INSTANCE} --zone ${GCE_INSTANCE_ZONE} --command "
+          set -e;
+          export CR_PAT=${{ secrets.GHCR_TOKEN }};
+          echo \$CR_PAT | docker login ghcr.io -u \${{ github.actor }} --password-stdin;
+          docker pull ghcr.io/wlodzimierrr/compare_app:latest &&
+          docker stop compare_app || true &&
+          docker rm compare_app || true &&
+          docker network create monitoring || true &&
+          docker run -d --name compare_app --network monitoring -p 5000:5000 ghcr.io/wlodzimierrr/compare_app:latest"
+        env:
+          GCE_INSTANCE: ${{ secrets.GCE_INSTANCE }}
+          GCE_INSTANCE_ZONE: ${{ secrets.GCE_INSTANCE_ZONE }}
+    
+      - name: Cleanup .env file
+        if: always()
+        run: rm -f ./.env
