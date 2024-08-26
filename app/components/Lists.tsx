@@ -7,52 +7,65 @@ import {
   IonItem,
   IonLabel,
   IonList,
+  IonInput,
+  IonButton,
+  IonIcon,
 } from "@ionic/react";
-import useAppStore from "../hooks/useStore";
-import { ListItem } from "../types/type";
-import { FC } from "react";
+import { useState } from "react";
+import { add, close } from 'ionicons/icons';
 
-interface ListEntryProps {
-  list: ListItem;
+interface BuyListItem {
+  id: number;
+  name: string;
 }
-const ListEntry:FC<ListEntryProps> = ({ list }) => (
-  <IonItem routerLink={`/tabs/lists/${list.id}`} className="list-entry">
-    <IonLabel>{list.name}</IonLabel>
-  </IonItem>
-);
 
-const AllLists = () => {
-  const { lists } = useAppStore();
+const BuyList = () => {
+  const [items, setItems] = useState<BuyListItem[]>([]);
+  const [newItem, setNewItem] = useState("");
 
-  return (
-    <>
-      {lists.map((list, i) => (
-        <ListEntry list={list} key={i} />
-      ))}
-    </>
-  );
-};
+  const addItem = () => {
+    if (newItem.trim() !== "") {
+      setItems([...items, { id: Date.now(), name: newItem }]);
+      setNewItem("");
+    }
+  };
 
-const Lists = () => {
+  const removeItem = (id: number) => {
+    setItems(items.filter(item => item.id !== id));
+  };
+
   return (
     <IonPage>
-      <IonHeader translucent={true}>
+      <IonHeader>
         <IonToolbar>
-          <IonTitle>Lists</IonTitle>
+          <IonTitle>Shopping List</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen={true}>
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Lists</IonTitle>
-          </IonToolbar>
-        </IonHeader>
+
         <IonList>
-          <AllLists />
+          {items.map((item) => (
+            <IonItem key={item.id}>
+              <IonLabel>{item.name}</IonLabel>
+              <IonButton fill="clear" onClick={() => removeItem(item.id)}>
+                <IonIcon icon={close} />
+              </IonButton>
+            </IonItem>
+          ))}
         </IonList>
+        <IonItem>
+          <IonInput
+            value={newItem}
+            placeholder="Add new item"
+            onIonChange={e => setNewItem(e.detail.value!)}
+          />
+          <IonButton onClick={addItem}>
+            <IonIcon icon={add} />
+          </IonButton>
+        </IonItem>
       </IonContent>
     </IonPage>
   );
 };
 
-export default Lists;
+export default BuyList;

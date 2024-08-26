@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
 "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 5000",
     "build": "next build",
     "build:dev": "next build --no-lint",
-    "start": "next start",
+    "start": "next start -p 5000",
     "lint": "next lint",
     "start:android": "npm run build:dev && npx cap sync && npx cap run android",
     "start:ios": "npm run build:dev && npx cap sync && npx cap run ios",
