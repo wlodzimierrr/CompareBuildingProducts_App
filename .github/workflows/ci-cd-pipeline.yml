@@ -22,7 +22,7 @@ jobs:
           echo "NEXT_PUBLIC_AGOLIA_PASSWORD=${{ secrets.NEXT_PUBLIC_AGOLIA_PASSWORD }}" >> ./.env
 
       - name: Build Docker image for compare_app
-        run: docker buildx build --platform linux/arm64 -t ghcr.io/wlodzimierrr/compare_app:latest
+        run: docker buildx build --platform linux/arm64 -t ghcr.io/wlodzimierrr/compare_app:latest ./
         
       - name: Push Docker image to GitHub Container Registry
         run: |
