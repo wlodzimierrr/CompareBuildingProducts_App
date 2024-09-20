@@ -22,12 +22,12 @@ jobs:
           echo "NEXT_PUBLIC_AGOLIA_PASSWORD=${{ secrets.NEXT_PUBLIC_AGOLIA_PASSWORD }}" >> ./.env
 
       - name: Build Docker image for compare_app
-        run: docker build -t ghcr.io/wlodzimierrr/compare_app:latest ./
+        run: docker buildx build --platform linux/arm64 -t ghcr.io/wlodzimierrr/compare_app:latest
         
       - name: Push Docker image to GitHub Container Registry
         run: |
-          docker login ghcr.io -u ${{ github.actor }} --password-stdin <<< ${{ secrets.GHCR_TOKEN }}
-          docker push ghcr.io/wlodzimierrr/compare_app:latest
+          echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker buildx build --platform linux/arm64 -t ghcr.io/wlodzimierrr/compare_app:latest --push ./
     
       - name: Cleanup .env file
         if: always()
